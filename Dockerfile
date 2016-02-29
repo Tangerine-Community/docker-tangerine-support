@@ -4,7 +4,6 @@
 # Start with Ubuntu 14.04 LTS.
 FROM ubuntu:14.04
 
-
 # Never ask for confirmations
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
@@ -22,6 +21,40 @@ RUN apt-get update
 # Install curl
 RUN sudo apt-get install curl -y
 
+# Setup Tangerine environment for Couch
+ENV T_HOSTNAME local.tangerinecentral.org
+ENV T_ADMIN admin
+ENV T_PASS password
+ENV T_COUCH_HOST localhost
+ENV T_COUCH_PORT 5984
+ENV T_ROBBERT_PORT 4444
+ENV T_TREE_PORT 4445
+ENV T_BROCKMAN_PORT 4446
+ENV T_DECOMPRESSOR_PORT 4447
+
+# install nginx
+RUN sudo apt-get install nginx -y
+
+# nginx config
+RUN sed 's/T_HOSTNAME/$T_HOSTNAME/g\
+    s/T_COUCH_HOST/$T_COUCH_HOST/g\
+    s/T_COUCH_PORT/$T_COUCH_PORT/g\
+    s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g\
+    s/T_TREE_PORT/$T_TREE_PORT/g\
+    s/T_BROCKMAN_PORT/$T_BROCKMAN_PORT/g\
+    s/T_DECOMPRESSOR_PORT/$T_DECOMPRESSOR_PORT/g' tangerine-nginx.template > /etc/nginx/sites-available/tangerine.conf
+RUN sudo ln -s /etc/nginx/sites-available/tangerine.conf /etc/nginx/sites-enabled/tangerine.conf
+RUN sudo rm /etc/nginx/sites-enabled/default
+  # increase the size limit of posts
+RUN sudo sed -i "s/sendfile on;/sendfile off;\n\tclient_max_body_size 128M;/" /etc/nginx/nginx.conf
+RUN sudo service nginx restart
+
+ADD ./ /root/Tangerine-server
+COPY tangerine-env-vars.sh.defaults /root/Tangerine-server/tangerine-env-vars.sh
+# RUN dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+RUN sudo cp /root/Tangerine-server/tangerine-env-vars.sh /etc/profile.d/
+# RUN source /etc/profile
+
 # Install Couchdb
 RUN sudo apt-get install software-properties-common -y
 RUN sudo apt-add-repository -y ppa:couchdb/stable
@@ -34,19 +67,13 @@ RUN sudo chown -R couchdb /var/run/couchdb
 RUN couchdb -k
 RUN couchdb -b
 
-# Tangerine environment for Couch
-ENV T_HOSTNAME local.tangerinecentral.org
-ENV T_ADMIN admin
-ENV T_PASS password
-ENV T_COUCH_HOST localhost
-ENV T_COUCH_PORT 5984
-
 # create server admin
 RUN sudo -E sh -c 'echo "$T_ADMIN = $T_PASS" >> /etc/couchdb/local.ini'
 RUN couchdb -b
 
 # Add the first user.
-RUN curl -HContent-Type:application/json -vXPUT "http://$T_ADMIN:$T_PASS@$T_COUCH_HOST:$T_COUCH_PORT/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
+# RUN curl -HContent-Type:application/json -vXPUT "http://$T_ADMIN:$T_PASS@$T_COUCH_HOST:$T_COUCH_PORT/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
+RUN curl -HContent-Type:application/json -vXPUT "http://admin:password@local.tangerinecentral.org:5984/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 
 # Install jdk7
 # RUN apt-get -y install oracle-java7-installer
@@ -68,3 +95,5 @@ ENV ANDROID_HOME /usr/local/bin/android-sdk
 ENV ANDROID_SDK_HOME $ANDROID_HOME
 ENV PATH $PATH:$ANDROID_SDK_HOME/tools
 ENV PATH $PATH:$ANDROID_SDK_HOME/platform-tools
+
+EXPOSE 80
