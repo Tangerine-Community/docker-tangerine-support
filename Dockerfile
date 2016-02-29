@@ -4,17 +4,17 @@
 # Start with Ubuntu 14.04 LTS.
 FROM ubuntu:14.04
 
+
 # Never ask for confirmations
 ENV DEBIAN_FRONTEND noninteractive
-RUN echo "debconf shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
-RUN echo "debconf shared/accepted-oracle-license-v1-1 seen true" | debconf-set-selections
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-# First, install add-apt-repository and bzip2
+# First, install bzip2
 RUN apt-get update
 RUN apt-get -y install software-properties-common python-software-properties bzip2 unzip openssh-client git lib32stdc++6 lib32z1
 
 # Add oracle-jdk7 to repositories
-RUN add-apt-repository ppa:webupd8team/java
+# RUN add-apt-repository ppa:webupd8team/java
 
 # Update apt
 RUN apt-get update
@@ -33,6 +33,13 @@ RUN sudo mkdir /var/run/couchdb
 RUN sudo chown -R couchdb /var/run/couchdb
 RUN couchdb -k
 RUN couchdb -b
+
+# Tangerine environment for Couch
+ENV T_HOSTNAME local.tangerinecentral.org
+ENV T_ADMIN admin
+ENV T_PASS password
+ENV T_COUCH_HOST localhost
+ENV T_COUCH_PORT 5984
 
 # create server admin
 RUN sudo -E sh -c 'echo "$T_ADMIN = $T_PASS" >> /etc/couchdb/local.ini'
