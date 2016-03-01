@@ -26,8 +26,8 @@ RUN apt-get update
 RUN sudo apt-get -y install software-properties-common python-software-properties bzip2 unzip openssh-client git lib32stdc++6 lib32z1 curl wget
 
 # required on 64-bit ubuntu
-RUN sudo dpkg --add-architecture i386
-RUN sudo apt-get -qqy install libncurses5:i386 libstdc++6:i386 zlib1g:i386
+# RUN sudo dpkg --add-architecture i386
+# RUN sudo apt-get -qqy install libncurses5:i386 libstdc++6:i386 zlib1g:i386
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
