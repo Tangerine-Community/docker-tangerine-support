@@ -1,4 +1,4 @@
-# Tangerine support anvironment  
+# Tangerine support environment  
 
 It installs some utilities for fetching files on top of ubuntu 14.04, 
 sets Tangerine env. vars., and then the core applications used by Tangerine. 
