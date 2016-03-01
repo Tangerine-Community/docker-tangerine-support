@@ -25,6 +25,10 @@ RUN apt-get update
 # Install some core utilities
 RUN sudo apt-get -y install software-properties-common python-software-properties bzip2 unzip openssh-client git lib32stdc++6 lib32z1 curl wget
 
+# required on 64-bit ubuntu
+RUN sudo dpkg --add-architecture i386
+RUN sudo apt-get -qqy install libncurses5:i386 libstdc++6:i386 zlib1g:i386
+
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
 RUN sudo apt-get -y install nodejs
@@ -82,9 +86,14 @@ RUN tar -xvzf android-sdk_r24.4.1-linux.tgz
 RUN mv android-sdk-linux /usr/local/bin/android-sdk
 RUN rm android-sdk_r24.4.1-linux.tgz
 
+# RUN sudo chown -R $USER:$USER /usr/local/bin/android-sdk
+# RUN sudo chmod a+x /usr/local/bin/android-sdk/tools/android
+# RUN PATH=$PATH:/usr/local/bin/android-sdk/tools:/usr/local/bin/android-sdk/build-tools
+# RUN sudo sh -c "echo \"export PATH=$PATH:/usr/local/bin/android-sdk/tools:/usr/local/bin/android-sdk/build-tools \nexport ANDROID_HOME=/usr/local/bin/android-sdk\" > /etc/profile.d/android-sdk-path.sh"
+
 # Install Android tools
 #RUN echo y | /usr/local/android-sdk/tools/android update sdk --filter platform,tool,platform-tool,extra,addon-google_apis-google-19,addon-google_apis_x86-google-19,build-tools-19.1.0 --no-ui -a
-RUN echo y | /usr/local/bin/android-sdk/tools/android update sdk --force --filter android-22,tools,platform-tools,build-tools-23.0.2 --no-ui -a
+RUN echo y | /usr/local/bin/android-sdk/tools/android update sdk --force --filter android-22,tool,platform-tools,build-tools-23.0.2 --no-ui -a
 
 # Environment variables
 ENV ANDROID_HOME /usr/local/bin/android-sdk
