@@ -1,24 +1,42 @@
-### Android development environment for ubuntu 14.04 LTS
+# Tangerine support anvironment  
 
-* Oracle Java JDK 7
-* Android SDK r23
-* Gradle 1.10
+It installs some utilities for fetching files on top of ubuntu 14.04, 
+sets Tangerine env. vars., and then the core applications used by Tangerine. 
 
-#### Install
+The JDK/Android part of this dockerfile is based on bprodoehl/android-dev. Kudos!
 
-You can either pull from `bprodoehl/android-dev`:
+A default Couchdb admin is created using the environment vars in the dockerfile.
+
+Features:
+
+- ubuntu 14.04 LTS
+- Nodejs (Node.js v4.2.0 "Argon")
+- nginx
+- Ubuntu default-jdk JDK 7 (openjdk)
+- Android SDK r24.4.1
+- Android tools - android-22
+- Couchdb (from ppa:couchdb/stable)
+
+## Install
+
+You can either pull from `tangerine/docker-tangerine-support`:
 
 ```
-docker pull bprodoehl/android-dev
+docker pull tangerine/docker-tangerine-support
 ```
 
 ```
-docker run -i -t bprodoehl/android-dev /bin/bash
+docker run -i -t tangerine/docker-tangerine-support /bin/bash
 ```
 
 or add it to your Dockerfile:
 
 ```
-FROM bprodoehl/android-dev
+FROM tangerine/docker-tangerine-support
 ```
+
+## TODO:
+
+- https support - from https://letsencrypt.org/ or http://aws.amazon.com/certificate-manager/
+- improve nginx configuration
 

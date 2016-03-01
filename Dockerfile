@@ -8,22 +8,6 @@ FROM ubuntu:14.04
 ENV DEBIAN_FRONTEND noninteractive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-# First, install bzip2
-RUN apt-get update
-RUN apt-get -y install software-properties-common python-software-properties bzip2 unzip openssh-client git lib32stdc++6 lib32z1
-
-# Add oracle-jdk7 to repositories
-# RUN add-apt-repository ppa:webupd8team/java
-
-# Update apt
-RUN apt-get update
-
-# Install curl
-RUN sudo apt-get install curl -y
-
-# Install wget
-RUN sudo apt-get install wget -y
-
 # Setup Tangerine environment for Couch
 ENV T_HOSTNAME local.tangerinecentral.org
 ENV T_ADMIN admin
@@ -35,8 +19,18 @@ ENV T_TREE_PORT 4445
 ENV T_BROCKMAN_PORT 4446
 ENV T_DECOMPRESSOR_PORT 4447
 
+# Update apt
+RUN apt-get update
+
+# Install some core utilities
+RUN sudo apt-get -y install software-properties-common python-software-properties bzip2 unzip openssh-client git lib32stdc++6 lib32z1 curl wget
+
+# install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+RUN sudo apt-get -y install nodejs
+
 # install nginx
-RUN sudo apt-get install nginx -y
+RUN sudo apt-get -y install nginx
 
 # nginx config
 CMD sudo sed 's/T_HOSTNAME/$T_HOSTNAME/g\
@@ -59,10 +53,10 @@ RUN sudo cp /root/Tangerine-server/tangerine-env-vars.sh /etc/profile.d/
 # RUN source /etc/profile
 
 # Install Couchdb
-RUN sudo apt-get install software-properties-common -y
+RUN sudo apt-get -y install software-properties-common
 RUN sudo apt-add-repository -y ppa:couchdb/stable
 RUN sudo apt-get update
-RUN sudo apt-get install couchdb -y
+RUN sudo apt-get -y install couchdb
 RUN sudo chown -R couchdb:couchdb /usr/lib/couchdb /usr/share/couchdb /etc/couchdb /usr/bin/couchdb
 RUN sudo chmod -R 0770 /usr/lib/couchdb /usr/share/couchdb /etc/couchdb /usr/bin/couchdb
 RUN sudo mkdir /var/run/couchdb
@@ -81,7 +75,6 @@ RUN couchdb -b
 # Install jdk7
 # RUN apt-get -y install oracle-java7-installer
 RUN apt-get -y install default-jdk
-
 
 # Install android sdk
 RUN wget http://dl.google.com/android/android-sdk_r24.4.1-linux.tgz
