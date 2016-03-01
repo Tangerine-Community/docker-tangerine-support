@@ -21,6 +21,9 @@ RUN apt-get update
 # Install curl
 RUN sudo apt-get install curl -y
 
+# Install wget
+RUN sudo apt-get install wget -y
+
 # Setup Tangerine environment for Couch
 ENV T_HOSTNAME local.tangerinecentral.org
 ENV T_ADMIN admin
@@ -36,7 +39,7 @@ ENV T_DECOMPRESSOR_PORT 4447
 RUN sudo apt-get install nginx -y
 
 # nginx config
-RUN sed 's/T_HOSTNAME/$T_HOSTNAME/g\
+CMD sudo sed 's/T_HOSTNAME/$T_HOSTNAME/g\
     s/T_COUCH_HOST/$T_COUCH_HOST/g\
     s/T_COUCH_PORT/$T_COUCH_PORT/g\
     s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g\
@@ -46,7 +49,7 @@ RUN sed 's/T_HOSTNAME/$T_HOSTNAME/g\
 RUN sudo ln -s /etc/nginx/sites-available/tangerine.conf /etc/nginx/sites-enabled/tangerine.conf
 RUN sudo rm /etc/nginx/sites-enabled/default
   # increase the size limit of posts
-RUN sudo sed -i "s/sendfile on;/sendfile off;\n\tclient_max_body_size 128M;/" /etc/nginx/nginx.conf
+CMD sudo sed -i "s/sendfile on;/sendfile off;\n\tclient_max_body_size 128M;/" /etc/nginx/nginx.conf
 RUN sudo service nginx restart
 
 ADD ./ /root/Tangerine-server
@@ -73,7 +76,7 @@ RUN couchdb -b
 
 # Add the first user.
 # RUN curl -HContent-Type:application/json -vXPUT "http://$T_ADMIN:$T_PASS@$T_COUCH_HOST:$T_COUCH_PORT/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
-RUN curl -HContent-Type:application/json -vXPUT "http://admin:password@local.tangerinecentral.org:5984/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
+# RUN curl -HContent-Type:application/json -vXPUT "http://admin:password@localhost:5984/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 
 # Install jdk7
 # RUN apt-get -y install oracle-java7-installer
