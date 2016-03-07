@@ -76,6 +76,15 @@ RUN couchdb -b
 # RUN curl -HContent-Type:application/json -vXPUT "http://$T_ADMIN:$T_PASS@$T_COUCH_HOST:$T_COUCH_PORT/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 # RUN curl -HContent-Type:application/json -vXPUT "http://admin:password@localhost:5984/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 
+
+# couchapp
+RUN sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main"
+RUN sudo apt-get update
+RUN sudo apt-get install build-essential python-dev -y
+RUN curl -O https://bootstrap.pypa.io/get-pip.py
+RUN sudo python get-pip.py
+RUN sudo pip install couchapp
+
 # Install jdk7
 # RUN apt-get -y install oracle-java7-installer
 RUN apt-get -y install default-jdk
