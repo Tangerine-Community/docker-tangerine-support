@@ -12,10 +12,13 @@ Features:
 - ubuntu 14.04 LTS
 - Nodejs (Node.js v4.2.0 "Argon")
 - nginx
+- Couchdb (from ppa:couchdb/stable)
+- Couchapp
+- RVM, Ruby ruby-2.2.0 - rvmsudo_secure_path=1
+- Bundler
 - Ubuntu default-jdk JDK 7 (openjdk)
 - Android SDK r24.4.1
 - Android tools - android-22
-- Couchdb (from ppa:couchdb/stable)
 
 ## Install
 

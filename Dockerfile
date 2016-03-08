@@ -76,14 +76,34 @@ RUN couchdb -b
 # RUN curl -HContent-Type:application/json -vXPUT "http://$T_ADMIN:$T_PASS@$T_COUCH_HOST:$T_COUCH_PORT/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 # RUN curl -HContent-Type:application/json -vXPUT "http://admin:password@localhost:5984/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 
-
 # couchapp
-RUN sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main"
+# RUN sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main"
 RUN sudo apt-get update
 RUN sudo apt-get install build-essential python-dev -y
 RUN curl -O https://bootstrap.pypa.io/get-pip.py
 RUN sudo python get-pip.py
 RUN sudo pip install couchapp
+
+# rvm
+RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+RUN curl -sSL https://get.rvm.io | bash -s stable
+# RUN source /home/$USER/.rvm/scripts/rvm
+
+# set secure path options
+# RUN /bin/bash -l -c "export rvmsudo_secure_path=1;"
+RUN sudo -E sh -c "echo export rvmsudo_secure_path=1 >> /etc/profile.d/rvm_secure_path.sh"
+# if sudo grep -q secure_path /etc/sudoers; then sudo sh -c "echo export rvmsudo_secure_path=1 >> /etc/profile.d/rvm_secure_path.sh" && echo Environment variable installed; fi
+#  source /etc/profile
+
+# install ruby
+RUN /bin/bash -l -c "rvm install ruby-2.2.0"
+RUN /bin/bash -l -c "rvm install ruby-2.2.0-dev"
+RUN /bin/bash -l -c "rvm --default use ruby-2.2.0"
+
+# install bundler
+# RUN sudo apt-get install bundler libsqlite3-dev -y
+RUN sudo apt-get install libsqlite3-dev -y
+RUN /bin/bash -l -c "gem install bundler --no-ri --no-rdoc"
 
 # Install jdk7
 # RUN apt-get -y install oracle-java7-installer
