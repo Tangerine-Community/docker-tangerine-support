@@ -36,21 +36,23 @@ RUN sudo apt-get -y install nodejs
 # install nginx
 RUN sudo apt-get -y install nginx
 
+ADD ./ /root/Tangerine-server
+COPY tangerine-nginx.template /root/Tangerine-server/tangerine-nginx.template
+
 # nginx config
-CMD sudo sed 's/T_HOSTNAME/$T_HOSTNAME/g\
-    s/T_COUCH_HOST/$T_COUCH_HOST/g\
-    s/T_COUCH_PORT/$T_COUCH_PORT/g\
-    s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g\
-    s/T_TREE_PORT/$T_TREE_PORT/g\
-    s/T_BROCKMAN_PORT/$T_BROCKMAN_PORT/g\
-    s/T_DECOMPRESSOR_PORT/$T_DECOMPRESSOR_PORT/g' tangerine-nginx.template > /etc/nginx/sites-available/tangerine.conf
+RUN sudo sed -i 's/T_HOSTNAME/$T_HOSTNAME/g; \
+    s/T_COUCH_HOST/$T_COUCH_HOST/g; \
+    s/T_COUCH_PORT/$T_COUCH_PORT/g; \
+    s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g; \
+    s/T_TREE_PORT/$T_TREE_PORT/g; \
+    s/T_BROCKMAN_PORT/$T_BROCKMAN_PORT/g; \
+    s/T_DECOMPRESSOR_PORT/$T_DECOMPRESSOR_PORT/g' /root/Tangerine-server/tangerine-nginx.template > /etc/nginx/sites-available/tangerine.conf
 RUN sudo ln -s /etc/nginx/sites-available/tangerine.conf /etc/nginx/sites-enabled/tangerine.conf
 RUN sudo rm /etc/nginx/sites-enabled/default
   # increase the size limit of posts
 CMD sudo sed -i "s/sendfile on;/sendfile off;\n\tclient_max_body_size 128M;/" /etc/nginx/nginx.conf
 RUN sudo service nginx restart
 
-ADD ./ /root/Tangerine-server
 COPY tangerine-env-vars.sh.defaults /root/Tangerine-server/tangerine-env-vars.sh
 # RUN dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 RUN sudo cp /root/Tangerine-server/tangerine-env-vars.sh /etc/profile.d/
