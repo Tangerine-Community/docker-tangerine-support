@@ -37,16 +37,17 @@ RUN sudo apt-get -y install nodejs
 RUN sudo apt-get -y install nginx
 
 ADD ./ /root/Tangerine-server
-COPY tangerine-nginx.template /root/Tangerine-server/tangerine-nginx.template
+# COPY tangerine-nginx.template /root/Tangerine-server/tangerine-nginx.template
+COPY tangerine.conf /etc/nginx/sites-available/tangerine.conf
 
 # nginx config
-RUN sudo sed -i 's/T_HOSTNAME/$T_HOSTNAME/g; \
-    s/T_COUCH_HOST/$T_COUCH_HOST/g; \
-    s/T_COUCH_PORT/$T_COUCH_PORT/g; \
-    s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g; \
-    s/T_TREE_PORT/$T_TREE_PORT/g; \
-    s/T_BROCKMAN_PORT/$T_BROCKMAN_PORT/g; \
-    s/T_DECOMPRESSOR_PORT/$T_DECOMPRESSOR_PORT/g' /root/Tangerine-server/tangerine-nginx.template > /etc/nginx/sites-available/tangerine.conf
+# RUN sudo sed -i 's/T_HOSTNAME/$T_HOSTNAME/g; \
+#    s/T_COUCH_HOST/$T_COUCH_HOST/g; \
+#    s/T_COUCH_PORT/$T_COUCH_PORT/g; \
+#    s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g; \
+#    s/T_TREE_PORT/$T_TREE_PORT/g; \
+#    s/T_BROCKMAN_PORT/$T_BROCKMAN_PORT/g; \
+#    s/T_DECOMPRESSOR_PORT/$T_DECOMPRESSOR_PORT/g' /root/Tangerine-server/tangerine-nginx.template > /etc/nginx/sites-available/tangerine.conf
 RUN sudo ln -s /etc/nginx/sites-available/tangerine.conf /etc/nginx/sites-enabled/tangerine.conf
 RUN sudo rm /etc/nginx/sites-enabled/default
   # increase the size limit of posts
