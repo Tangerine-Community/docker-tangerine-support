@@ -87,25 +87,21 @@ RUN curl -O https://bootstrap.pypa.io/get-pip.py
 RUN sudo python get-pip.py
 RUN sudo pip install couchapp
 
-# rvm
+RUN apt-get install -y -q build-essential
+RUN apt-get install -y nano wget links curl rsync bc git git-core apt-transport-https libxml2 libxml2-dev libcurl4-openssl-dev openssl sqlite3 libsqlite3-dev
+RUN apt-get install -y gawk libreadline6-dev libyaml-dev autoconf libgdbm-dev libncurses5-dev automake libtool bison libffi-dev
+
+## Ruby
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-RUN curl -sSL https://get.rvm.io | bash -s stable
-# RUN source /home/$USER/.rvm/scripts/rvm
-
-# set secure path options
-# RUN /bin/bash -l -c "export rvmsudo_secure_path=1;"
-RUN sudo -E sh -c "echo export rvmsudo_secure_path=1 >> /etc/profile.d/rvm_secure_path.sh"
-# if sudo grep -q secure_path /etc/sudoers; then sudo sh -c "echo export rvmsudo_secure_path=1 >> /etc/profile.d/rvm_secure_path.sh" && echo Environment variable installed; fi
-#  source /etc/profile
-
+RUN curl -L https://get.rvm.io | bash -s stable
+#Set env just in case
+ENV PATH /usr/local/rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+RUN /bin/bash -l -c "rvm requirements"
 # install ruby
 RUN /bin/bash -l -c "rvm install ruby-2.2.0"
 RUN /bin/bash -l -c "rvm install ruby-2.2.0-dev"
 RUN /bin/bash -l -c "rvm --default use ruby-2.2.0"
 
-# install bundler
-# RUN sudo apt-get install bundler libsqlite3-dev -y
-RUN sudo apt-get install libsqlite3-dev -y
 RUN /bin/bash -l -c "gem install bundler --no-ri --no-rdoc"
 
 # Install jdk7
