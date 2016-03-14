@@ -101,8 +101,8 @@ RUN /bin/bash -l -c "rvm requirements"
 RUN /bin/bash -l -c "rvm install ruby-2.2.0"
 RUN /bin/bash -l -c "rvm install ruby-2.2.0-dev"
 RUN /bin/bash -l -c "rvm --default use ruby-2.2.0"
-
-RUN /bin/bash -l -c "gem install bundler --no-ri --no-rdoc"
+RUN /bin/bash -c "source /usr/local/rvm/bin/rvm \
+&& gem install bundler --no-ri --no-rdoc "
 
 # Install jdk7
 # RUN apt-get -y install oracle-java7-installer
