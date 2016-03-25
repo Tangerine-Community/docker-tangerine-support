@@ -19,60 +19,56 @@ ENV T_TREE_PORT 4445
 ENV T_BROCKMAN_PORT 4446
 ENV T_DECOMPRESSOR_PORT 4447
 
-# Update apt
-RUN apt-get update
-
 # Install some core utilities
-RUN sudo apt-get -y install software-properties-common python-software-properties bzip2 unzip openssh-client git lib32stdc++6 lib32z1 curl wget
+RUN apt-get update && apt-get -y install \
+    software-properties-common \
+    python-software-properties \
+    bzip2 unzip \
+    openssh-client \
+    git \
+    lib32stdc++6 \
+    lib32z1 \
+    curl \
+    wget
 
-# required on 64-bit ubuntu
-# RUN sudo dpkg --add-architecture i386
-# RUN sudo apt-get -qqy install libncurses5:i386 libstdc++6:i386 zlib1g:i386
-
-# install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-RUN sudo apt-get -y install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
+RUN apt-get -y install nodejs
 
 # install nginx
-RUN sudo apt-get -y install nginx
+RUN apt-get -y install nginx
 
 ADD ./ /root/Tangerine-server
 # COPY tangerine-nginx.template /root/Tangerine-server/tangerine-nginx.template
 COPY tangerine.conf /etc/nginx/sites-available/tangerine.conf
 
 # nginx config
-# RUN sudo sed -i 's/T_HOSTNAME/$T_HOSTNAME/g; \
-#    s/T_COUCH_HOST/$T_COUCH_HOST/g; \
-#    s/T_COUCH_PORT/$T_COUCH_PORT/g; \
-#    s/T_ROBBERT_PORT/$T_ROBBERT_PORT/g; \
-#    s/T_TREE_PORT/$T_TREE_PORT/g; \
-#    s/T_BROCKMAN_PORT/$T_BROCKMAN_PORT/g; \
-#    s/T_DECOMPRESSOR_PORT/$T_DECOMPRESSOR_PORT/g' /root/Tangerine-server/tangerine-nginx.template > /etc/nginx/sites-available/tangerine.conf
-RUN sudo ln -s /etc/nginx/sites-available/tangerine.conf /etc/nginx/sites-enabled/tangerine.conf
-RUN sudo rm /etc/nginx/sites-enabled/default
+RUN ln -s /etc/nginx/sites-available/tangerine.conf /etc/nginx/sites-enabled/tangerine.conf
+RUN rm /etc/nginx/sites-enabled/default
   # increase the size limit of posts
-CMD sudo sed -i "s/sendfile on;/sendfile off;\n\tclient_max_body_size 128M;/" /etc/nginx/nginx.conf
-RUN sudo service nginx restart
+CMD sed -i "s/sendfile on;/sendfile off;\n\tclient_max_body_size 128M;/" /etc/nginx/nginx.conf
+# RUN service nginx restart
 
 COPY tangerine-env-vars.sh.defaults /root/Tangerine-server/tangerine-env-vars.sh
 # RUN dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-RUN sudo cp /root/Tangerine-server/tangerine-env-vars.sh /etc/profile.d/
+RUN cp /root/Tangerine-server/tangerine-env-vars.sh /etc/profile.d/
 # RUN source /etc/profile
 
+# get top to work
+RUN echo -e "\nexport TERM=xterm" >> ~/.bashrc
+
 # Install Couchdb
-RUN sudo apt-get -y install software-properties-common
-RUN sudo apt-add-repository -y ppa:couchdb/stable
-RUN sudo apt-get update
-RUN sudo apt-get -y install couchdb
-RUN sudo chown -R couchdb:couchdb /usr/lib/couchdb /usr/share/couchdb /etc/couchdb /usr/bin/couchdb
-RUN sudo chmod -R 0770 /usr/lib/couchdb /usr/share/couchdb /etc/couchdb /usr/bin/couchdb
-RUN sudo mkdir /var/run/couchdb
-RUN sudo chown -R couchdb /var/run/couchdb
+RUN apt-get -y install software-properties-common
+RUN apt-add-repository -y ppa:couchdb/stable
+RUN apt-get update && apt-get -y install couchdb
+RUN chown -R couchdb:couchdb /usr/lib/couchdb /usr/share/couchdb /etc/couchdb /usr/bin/couchdb
+RUN chmod -R 0770 /usr/lib/couchdb /usr/share/couchdb /etc/couchdb /usr/bin/couchdb
+RUN mkdir /var/run/couchdb
+RUN chown -R couchdb /var/run/couchdb
 RUN couchdb -k
 RUN couchdb -b
 
 # create server admin
-RUN sudo -E sh -c 'echo "$T_ADMIN = $T_PASS" >> /etc/couchdb/local.ini'
+RUN sh -c 'echo "$T_ADMIN = $T_PASS" >> /etc/couchdb/local.ini'
 RUN couchdb -b
 
 # Add the first user.
@@ -80,16 +76,41 @@ RUN couchdb -b
 # RUN curl -HContent-Type:application/json -vXPUT "http://admin:password@localhost:5984/_users/org.couchdb.user:user1" --data-binary '{"_id": "org.couchdb.user:user1","name": "user1","roles": [],"type": "user","password": "password"}'
 
 # couchapp
-# RUN sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main"
-RUN sudo apt-get update
-RUN sudo apt-get install build-essential python-dev -y
+# RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main"
+RUN apt-get update && apt-get install build-essential \
+    python-dev -y
 RUN curl -O https://bootstrap.pypa.io/get-pip.py
-RUN sudo python get-pip.py
-RUN sudo pip install couchapp
+RUN python get-pip.py
+RUN pip install couchapp
 
 RUN apt-get install -y -q build-essential
-RUN apt-get install -y nano wget links curl rsync bc git git-core apt-transport-https libxml2 libxml2-dev libcurl4-openssl-dev openssl sqlite3 libsqlite3-dev
-RUN apt-get install -y gawk libreadline6-dev libyaml-dev autoconf libgdbm-dev libncurses5-dev automake libtool bison libffi-dev
+RUN apt-get install -y \
+    nano \
+    wget \
+    links \
+    curl \
+    rsync \
+    bc \
+    git \
+    git-core \
+    apt-transport-https \
+    libxml2 \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    openssl \
+    sqlite3 \
+    libsqlite3-dev
+RUN apt-get install -y \
+    gawk \
+    libreadline6-dev \
+    libyaml-dev \
+    autoconf \
+    libgdbm-dev \
+    libncurses5-dev \
+    automake \
+    libtool \
+    bison \
+    libffi-dev
 
 ## Ruby
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
@@ -115,7 +136,7 @@ RUN tar xvf tmp/android-sdk.tgz -C /usr/local/bin
 RUN chown -R root:root /usr/local/bin/android-sdk-linux
 RUN chmod a+x /usr/local/bin/android-sdk-linux/tools/android
 ENV PATH ${PATH}:/usr/local/bin/android-sdk-linux/tools:/usr/local/bin/android-sdk-linux/build-tools
-RUN sudo sh -c "echo \"export PATH=$PATH:/usr/local/bin/android-sdk-linux/tools:/usr/local/bin/android-sdk-linux/build-tools \nexport ANDROID_HOME=/usr/local/bin/android-sdk-linux\" > /etc/profile.d/android-sdk-path.sh"
+RUN sh -c "echo \"export PATH=$PATH:/usr/local/bin/android-sdk-linux/tools:/usr/local/bin/android-sdk-linux/build-tools \nexport ANDROID_HOME=/usr/local/bin/android-sdk-linux\" > /etc/profile.d/android-sdk-path.sh"
 RUN cd /usr/local/bin/android-sdk-linux/tools/ && echo y | /usr/local/bin/android-sdk-linux/tools/android update sdk -u -a --force -t "tools"
 RUN cd /usr/local/bin/android-sdk-linux/tools/ && echo y | /usr/local/bin/android-sdk-linux/tools/android update sdk -u -a --force -t "platform-tools"
 RUN cd /usr/local/bin/android-sdk-linux/tools/ && echo y | /usr/local/bin/android-sdk-linux/tools/android update sdk -u -a --force -t "android-22,build-tools-23.0.2"
@@ -123,7 +144,11 @@ RUN cd /usr/local/bin/android-sdk-linux/tools/ && echo y | /usr/local/bin/androi
 # Installs i386 architecture required for running 32 bit Android tools
 RUN dpkg --add-architecture i386 && \
     apt-get update -y && \
-    apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386 lib32z1 && \
+    apt-get install -y \
+    libc6:i386 \
+    libncurses5:i386 \
+    libstdc++6:i386 \
+    lib32z1 && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
