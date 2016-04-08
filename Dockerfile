@@ -29,7 +29,8 @@ RUN apt-get update && apt-get -y install \
     lib32stdc++6 \
     lib32z1 \
     curl \
-    wget
+    wget \
+    vim
 
 RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
 RUN apt-get -y install nodejs
